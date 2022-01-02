@@ -9,10 +9,13 @@ const rl = readline.createInterface({
 
 rl.question('输入文件夹路径：', function (dir) {
   rl.question('输入宽度大小（默认 600）：', function (width) {
-    rl.question('是否加上边框(y/n)？（默认y）', function (mode) {
+    rl.question('是否加上边框(y/n)？（默认y）', async function (mode) {
       const storeDir = dir + '/data'
       fs.mkdir(storeDir, function() {});
-      walkSync(dir, function (filePath, _) {
+      console.log("---------------- \n")
+      console.log("处理后的存储路径：", storeDir)
+      console.log("---------------- \n")
+      await walkSync(dir, function (filePath, _) {
         dealImage(storeDir, filePath, width || 600, mode === 'y')
       });
       rl.close();
