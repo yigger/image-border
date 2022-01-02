@@ -9,25 +9,25 @@ const rl = readline.createInterface({
 
 rl.question('输入文件夹路径：', function (dir) {
   rl.question('输入宽度大小（默认 600）：', function (width) {
-    const storeDir = dir + '/data'
-    fs.mkdir(storeDir, function() {});
-    walkSync(dir, function (filePath, _) {
-      dealImage(storeDir, filePath, width || 600)
+    rl.question('是否加上边框(y/n)？（默认y）', function (mode) {
+      const storeDir = dir + '/data'
+      fs.mkdir(storeDir, function() {});
+      walkSync(dir, function (filePath, _) {
+        dealImage(storeDir, filePath, width || 600, mode === 'y')
+      });
+      rl.close();
     });
-    rl.close();
   });
 });
 
 
 
-const dealImage = (storeDir, filePath, width) => {
+const dealImage = (storeDir, filePath, width, addBorder = true) => {
   const paths = filePath.split('/')
   const file = paths[paths.length - 1]
-  gm(filePath)
-  .borderColor('white')
-  .border(0, 50)
-  .resize(width)
-  .write(storeDir + '/' + file, function (err) {
+  const g = addBorder ? gm(filePath).borderColor('white').border(0, 50) : gm(filePath)
+  g.resize(width)
+   .write(storeDir + '/' + file, function (err) {
     if (!err) {
       console.log(filePath, " 已处理。");
     }
