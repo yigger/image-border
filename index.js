@@ -16,7 +16,7 @@ rl.question('输入文件夹路径：', function (dir) {
       console.log("处理后的存储路径：", storeDir)
       console.log("---------------- \n")
       await walkSync(dir, function (filePath, _) {
-        dealImage(storeDir, filePath, width || 600, mode === 'y')
+        dealImage(storeDir, filePath, width || 600, (mode || 'y') === 'y')
       });
       rl.close();
     });
