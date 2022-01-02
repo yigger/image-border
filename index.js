@@ -8,11 +8,11 @@ const rl = readline.createInterface({
 });
 
 rl.question('输入文件夹路径：', function (dir) {
-  rl.question('输入宽度大小：', function (width) {
+  rl.question('输入宽度大小（默认 600）：', function (width) {
     const storeDir = dir + '/data'
     fs.mkdir(storeDir, function() {});
     walkSync(dir, function (filePath, _) {
-      dealImage(storeDir, filePath, width)
+      dealImage(storeDir, filePath, width || 600)
     });
     rl.close();
   });
@@ -24,13 +24,12 @@ const dealImage = (storeDir, filePath, width) => {
   const paths = filePath.split('/')
   const file = paths[paths.length - 1]
   gm(filePath)
+  .borderColor('white')
   .border(0, 50)
   .resize(width)
   .write(storeDir + '/' + file, function (err) {
     if (!err) {
       console.log(filePath, " 已处理。");
-    } else {
-      console.log(err)
     }
   });
 }
