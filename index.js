@@ -3,6 +3,7 @@ const fs = require('fs')
 const path = require('path');
 const readline = require('readline');
 const URL = require('url').URL;
+const images = require("images");
 const crawlData = require('./crawl_data')
 
 const rl = readline.createInterface({
@@ -11,7 +12,7 @@ const rl = readline.createInterface({
 });
 
 rl.question('输入网址：', function (crawl_url) {
-  rl.question('输入宽度大小（默认 600）：', function (width) {
+  rl.question('输入像素大小（默认 800）：', function (width) {
     rl.question('是否加上边框(y/n)？（默认y）', async function (mode) {
       // 抓取图片
       const url = crawl_url
@@ -27,7 +28,7 @@ rl.question('输入网址：', function (crawl_url) {
       console.log("处理后的存储路径：", storeDir)
       console.log("---------------- \n")
       await walkSync(dir, function (filePath, _) {
-        dealImage(storeDir, filePath, width || 600, (mode || 'y') === 'y')
+        dealImage(storeDir, filePath, width || 800, (mode || 'y') === 'y')
       });
       rl.close();
     });
@@ -39,13 +40,29 @@ rl.question('输入网址：', function (crawl_url) {
 const dealImage = (storeDir, filePath, width, addBorder = true) => {
   const paths = filePath.split('/')
   const file = paths[paths.length - 1]
-  const g = addBorder ? gm(filePath).borderColor('white').border(0, 50) : gm(filePath)
-  g.resize(width)
-   .write(storeDir + '/' + file, function (err) {
-    if (!err) {
-      console.log(filePath, " 已处理。");
-    }
-  });
+  if (!/\.(jpg|jpeg|png|GIF|JPG|PNG)$/.test(file) ) { 
+    return
+  }
+
+  images(filePath)
+    .resize(Number.parseInt(width))
+    .save(storeDir + '/' + file, {
+      quality : 90
+    })
+
+
+  if (addBorder) {
+    gm(filePath)
+      .borderColor('white')
+      .border(0, 25)
+      .write(storeDir + '/' + file, function (err) {
+      if (!err) {
+        console.log(filePath, " 已处理。");
+      }
+    });
+  } else {
+    console.log(filePath, " 已处理。");
+  }
 }
 
 function walkSync(currentDirPath, callback) {
