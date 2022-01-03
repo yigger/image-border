@@ -9,6 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "gm": "^1.23.1"
+    "axios": "^0.24.0",
+    "cheerio": "^1.0.0-rc.10",
+    "gm": "^1.23.1",
+    "url": "^0.11.0"
   }
 }

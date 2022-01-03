@@ -2,14 +2,25 @@ const gm = require('gm').subClass({imageMagick: true});
 const fs = require('fs')
 const path = require('path');
 const readline = require('readline');
+const URL = require('url').URL;
+const crawlData = require('./crawl_data')
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-rl.question('输入文件夹路径：', function (dir) {
+rl.question('输入网址：', function (crawl_url) {
   rl.question('输入宽度大小（默认 600）：', function (width) {
     rl.question('是否加上边框(y/n)？（默认y）', async function (mode) {
+      // 抓取图片
+      const url = crawl_url
+      const myURL = new URL(url);
+      const referer = myURL.origin
+      const thief = new crawlData(url, referer);
+      const dir = await thief.run();
+
+      // 处理图片并保存
       const storeDir = dir + '/data'
       fs.mkdir(storeDir, function() {});
       console.log("---------------- \n")
