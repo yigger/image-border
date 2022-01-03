@@ -2,13 +2,14 @@ const axios = require('axios')
 const cheerio = require('cheerio')
 const path = require('path')
 const fs = require('fs')
+const process = require('process');
 
 class crawlData {
   constructor(base_url, referer) {
     this.base_url = base_url;
     this.referer = referer;
     this.result_list = [];
-    this.storeDir = __dirname
+    this.storeDir = path.resolve('./', process.cwd())
   }
 
   async run() {
@@ -72,7 +73,7 @@ class crawlData {
         } else {
           console.log(`开始下载第${i + 1}张图片!`);
           await this.downLoadPicture(imageUrl);
-          await this.sleep(1000 * Math.random());
+          await this.sleep(2000 * Math.random());
           console.log(`第${i + 1}张图片下载成功!`);
         }
       }
@@ -86,7 +87,7 @@ class crawlData {
   async downLoadPicture(href) {
     try {
       const target_path = path.resolve(`${this.storeDir}/${href.split('/').pop()}`);
-
+      console.log(target_path)
       const optionConf = {
         responseType: 'stream',
         headers: {
