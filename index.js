@@ -39,7 +39,8 @@ rl.question('输入网址：', function (crawl_url) {
 
 const dealImage = (storeDir, filePath, width, addBorder = true) => {
   const paths = filePath.split('/')
-  const file = paths[paths.length - 1]
+  const file = process.platform === "win32" ? path.win32.basename(filePath) : paths[paths.length - 1]
+
   if (!/\.(jpg|jpeg|png|GIF|JPG|PNG)$/.test(file) ) { 
     return
   }
