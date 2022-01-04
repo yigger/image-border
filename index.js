@@ -1,10 +1,10 @@
-const gm = require('gm').subClass({imageMagick: true});
 const fs = require('fs')
 const path = require('path');
 const readline = require('readline');
 const URL = require('url').URL;
 const images = require("images");
-const crawlData = require('./crawl_data')
+const crawlData = require('./crawl_data');
+const sharp = require('sharp');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -28,16 +28,15 @@ rl.question('输入网址：', function (crawl_url) {
       console.log("处理后的存储路径：", storeDir)
       console.log("---------------- \n")
       await walkSync(dir, function (filePath, _) {
-        dealImage(storeDir, filePath, width || 800, (mode || 'y') === 'y')
+        let newFilePath = dealImage(storeDir, filePath, width || 800)
+        dealBorder(newFilePath, (mode || 'y') === 'y')
       });
       rl.close();
     });
   });
 });
 
-
-
-const dealImage = (storeDir, filePath, width, addBorder = true) => {
+const dealImage = (storeDir, filePath, width) => {
   const paths = filePath.split('/')
   const file = process.platform === "win32" ? path.win32.basename(filePath) : paths[paths.length - 1]
 
@@ -51,22 +50,29 @@ const dealImage = (storeDir, filePath, width, addBorder = true) => {
       quality : 90
     })
 
+  console.log(filePath, " 图片质量与像素已处理。");
 
-  if (addBorder) {
-    gm(filePath)
-      .borderColor('white')
-      .border(0, 25)
-      .write(storeDir + '/' + file, function (err) {
-      if (!err) {
-        console.log(filePath, " 已处理。");
-      }
-    });
-  } else {
-    console.log(filePath, " 已处理。");
-  }
+  return storeDir + '/' + file
 }
 
-function walkSync(currentDirPath, callback) {
+const dealBorder = async (filePath) => {
+  try {
+    const buffer = await sharp(filePath)
+                        .extend({
+                            top: 25,
+                            bottom: 25,
+                            background: "#FFFFFF"
+                        }) 
+                        .toBuffer();
+    sharp(buffer).toFile(filePath);
+    console.log(filePath, "上下边框已处理。");
+  } catch (error) {
+    console.log(error);
+  }
+  
+}
+
+const walkSync = (currentDirPath, callback) => {
   fs.readdirSync(currentDirPath).forEach(function (name) {
       var filePath = path.join(currentDirPath, name);
       var stat = fs.statSync(filePath);
