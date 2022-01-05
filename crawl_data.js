@@ -41,8 +41,8 @@ class crawlData {
       const result_list = [];
 
       // 根据店铺创建目录
-      const shopNickname = $('.showheader__nickname').text()
-      const productName = $('.showalbumheader__gallerytitle').attr('data-name')
+      const shopNickname = $('.showheader__nickname').text().replace(/[\/:*?"<>|]/g, "")
+      const productName = $('.showalbumheader__gallerytitle').attr('data-name').replace(/[\/:*?"<>|]/g, "")
       this.storeDir = this.storeDir + '/' + shopNickname + '/' + productName
       fs.mkdir(this.storeDir, { recursive: true }, function() {});
 
