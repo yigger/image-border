@@ -11,30 +11,45 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-rl.question('输入网址：', function (crawl_url) {
-  rl.question('输入像素大小（默认 750）：', function (width) {
-    rl.question('是否加上边框(y/n)？（默认y）', async function (mode) {
-      // 抓取图片
-      const url = crawl_url
-      const myURL = new URL(url);
-      const referer = myURL.origin
-      const thief = new crawlData(url, referer);
-      const dir = await thief.run();
+const run = async () => {
+  console.log("-----------------------------------")
+  console.log("| 欢迎使用 yy-image，退出： Ctrl+c |")
+  console.log("-----------------------------------")
+  rl.question('输入抓取图片的网址：', function (crawl_url) {
+    rl.question('输入像素宽度大小（默认 750）：', function (width) {
+      rl.question('是否加上边框(y/n)？（默认y）', async function (mode) {
+        // 抓取图片
+        const url = crawl_url
+        const myURL = new URL(url);
+        const referer = myURL.origin
+        const thief = new crawlData(url, referer);
+        const dir = await thief.run();
 
-      // 处理图片并保存
-      const storeDir = dir + '/data'
-      fs.mkdir(storeDir, function() {});
-      console.log("---------------- \n")
-      console.log("处理后的存储路径：", storeDir)
-      console.log("---------------- \n")
-      await walkSync(dir, function (filePath, _) {
-        let newFilePath = dealImage(storeDir, filePath, width || 750)
-        dealBorder(newFilePath, (mode || 'y') === 'y')
+        // 处理图片并保存
+        const storeDir = dir + '/data'
+        fs.mkdir(storeDir, function() {});
+        console.log("---------------- \n")
+        console.log("处理后的存储路径：", storeDir)
+        console.log("---------------- \n")
+        
+        // 处理像素
+        const borderFilePaths = []
+        await walkSync(dir, async function (filePath, _) {
+          let newFilePath = dealImage(storeDir, filePath, width || 750)
+          borderFilePaths.push(newFilePath)
+        });
+        
+        // 处理上下边框
+        for (let newFilePath of borderFilePaths) {
+          await dealBorder(newFilePath, (mode || 'y') === 'y')
+        }
+        
+        console.log("已经全部处理完毕。可进入下一轮。 \n\n\n")
+        await run()
       });
-      rl.close();
     });
   });
-});
+}
 
 const dealImage = (storeDir, filePath, width) => {
   const paths = filePath.split('/')
@@ -69,7 +84,6 @@ const dealBorder = async (filePath) => {
   } catch (error) {
     console.log(error);
   }
-  
 }
 
 const walkSync = (currentDirPath, callback) => {
@@ -83,3 +97,5 @@ const walkSync = (currentDirPath, callback) => {
       }
   });
 }
+
+run()

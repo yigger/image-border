@@ -41,9 +41,10 @@ class crawlData {
       const result_list = [];
 
       // 根据店铺创建目录
+      const today = new Date();
       const shopNickname = $('.showheader__nickname').text().replace(/[\/:*?"<>|]/g, "")
       const productName = $('.showalbumheader__gallerytitle').attr('data-name').replace(/[\/:*?"<>|]/g, "")
-      this.storeDir = this.storeDir + '/' + shopNickname + '/' + productName
+      this.storeDir = this.storeDir + '/' + `${today.getFullYear()}${today.getMonth()+1}${today.getDate()}` + '/' + shopNickname + '/' + productName
       fs.mkdir(this.storeDir, { recursive: true }, function() {});
 
       $('.image__imagewrap img').each((_, element) => {
