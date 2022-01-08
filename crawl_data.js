@@ -25,7 +25,7 @@ class crawlData {
 
   sleep(time) {
     return new Promise((resolve) => {
-      console.log(`自动睡眠中，${time / 1000}秒后重新发送请求......`);
+      // console.log(`自动睡眠中，${time / 1000}秒后重新发送请求......`);
       setTimeout(() => {
         resolve();
       }, time);
@@ -69,12 +69,12 @@ class crawlData {
 
         if (fs.existsSync(targetPath)) {
           console.log('文件已存在，不再重复下载')
-          return false
+          continue
         } else {
-          console.log(`开始下载第${i + 1}张图片!`);
+          console.log(`开始下载第 ${i + 1} 张图片!`);
           await this.downLoadPicture(imageUrl);
           await this.sleep(2000 * Math.random());
-          console.log(`第${i + 1}张图片下载成功!`);
+          console.log(`第 ${i + 1} 张图片下载成功!`);
         }
       }
       return Promise.resolve();
@@ -97,7 +97,7 @@ class crawlData {
       }
       const response = await axios.get(href, optionConf);
       await response.data.pipe(fs.createWriteStream(target_path));
-      console.log('写入成功');
+      // console.log('写入成功');
       return Promise.resolve();
     } catch (e) {
       console.log('写入数据失败');

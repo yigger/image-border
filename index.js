@@ -12,7 +12,7 @@ const rl = readline.createInterface({
 });
 
 rl.question('输入网址：', function (crawl_url) {
-  rl.question('输入像素大小（默认 800）：', function (width) {
+  rl.question('输入像素大小（默认 750）：', function (width) {
     rl.question('是否加上边框(y/n)？（默认y）', async function (mode) {
       // 抓取图片
       const url = crawl_url
@@ -28,7 +28,7 @@ rl.question('输入网址：', function (crawl_url) {
       console.log("处理后的存储路径：", storeDir)
       console.log("---------------- \n")
       await walkSync(dir, function (filePath, _) {
-        let newFilePath = dealImage(storeDir, filePath, width || 800)
+        let newFilePath = dealImage(storeDir, filePath, width || 750)
         dealBorder(newFilePath, (mode || 'y') === 'y')
       });
       rl.close();
@@ -59,8 +59,8 @@ const dealBorder = async (filePath) => {
   try {
     const buffer = await sharp(filePath)
                         .extend({
-                            top: 25,
-                            bottom: 25,
+                            top: 5,
+                            bottom: 5,
                             background: "#FFFFFF"
                         }) 
                         .toBuffer();
