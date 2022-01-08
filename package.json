@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "pkg" : {
+    "assets": [ "node_modules/**/*"],
+    "outputPath": "dist"
   },
   "author": "",
   "license": "ISC",
@@ -12,8 +17,10 @@
     "axios": "^0.24.0",
     "cheerio": "^1.0.0-rc.10",
     "filenamify": "^5.0.2",
+    "global": "^4.4.0",
     "gm": "^1.23.1",
     "images": "^3.2.3",
+    "nexe": "^4.0.0-beta.19",
     "sharp": "^0.29.3",
     "url": "^0.11.0"
   }
