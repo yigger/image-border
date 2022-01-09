@@ -8,5 +8,5 @@ pkg index.js -o image-border
 ```
 
 ```
-pkg . --targets win-x64 --output yy-image-win
+pkg . --targets win-x64 --output yy-image-win-x64
 ```
