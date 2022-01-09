@@ -1,5 +1,5 @@
 # Image-border  
-为图片加上边框
+自动压缩图片质量 + 图片上下边框处理
 
 ```
 node index.js
