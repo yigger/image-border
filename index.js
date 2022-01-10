@@ -17,7 +17,7 @@ const run = async () => {
   console.log("| 欢迎使用 yy-image，退出： Ctrl+c |")
   console.log("-----------------------------------")
   rl.question('输入抓取图片的网址（多个网址用空格分开）：', function (crawl_url) {
-    rl.question('输入像素宽度大小（默认 750）：', function (width) {
+    rl.question('输入像素宽度大小（默认 1800）：', function (width) {
       rl.question('是否加上边框(y/n)？（默认y）', async function (mode) {
         const urls = crawl_url.split(' ')
         for(let url of urls) {
@@ -54,7 +54,7 @@ const imageBorder = async (url, width, mode) => {
   // 处理像素
   const borderFilePaths = []
   await walkSync(dir, async function (filePath, _) {
-    let newFilePath = dealImage(storeDir, filePath, width || 750)
+    let newFilePath = dealImage(storeDir, filePath, width || 1800)
     borderFilePaths.push(newFilePath)
   });
   
@@ -75,7 +75,7 @@ const dealImage = (storeDir, filePath, width) => {
   images(filePath)
     .resize(Number.parseInt(width))
     .save(storeDir + '/' + file, {
-      quality : 90
+      quality : 200
     })
 
   console.log(filePath, " 图片质量与像素已处理。");
