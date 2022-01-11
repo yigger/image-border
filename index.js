@@ -53,15 +53,19 @@ const imageBorder = async (url, width, mode) => {
   
   // 处理像素
   const borderFilePaths = []
+  console.log("正在压缩图片质量，请稍等...")
   await walkSync(dir, async function (filePath, _) {
     let newFilePath = dealImage(storeDir, filePath, width || 1800)
     borderFilePaths.push(newFilePath)
   });
-  
+  console.log("图片质量已全部压缩。");
+
   // 处理上下边框
+  console.log("正在处理上下边框，请稍等...")
   for (let newFilePath of borderFilePaths) {
     await dealBorder(newFilePath, (mode || 'y') === 'y')
   }
+  console.log("上下边框已全部处理。");
 }
 
 const dealImage = (storeDir, filePath, width) => {
@@ -71,15 +75,17 @@ const dealImage = (storeDir, filePath, width) => {
   if (!/\.(jpg|jpeg|png|GIF|JPG|PNG)$/.test(file) ) { 
     return
   }
+  const img = images(filePath)
+  if (img.width() <= Number.parseInt(width)) {
+    img.save(storeDir + '/' + file, { quality : 90 })
+  } else {
+    img.resize(Number.parseInt(width))
+       .save(storeDir + '/' + file, {
+         quality : 90
+       })
+  }
 
-  images(filePath)
-    .resize(Number.parseInt(width))
-    .save(storeDir + '/' + file, {
-      quality : 200
-    })
-
-  console.log(filePath, " 图片质量与像素已处理。");
-
+  console.log(`${filePath} 图片质量已处理.`);
   return storeDir + '/' + file
 }
 

@@ -44,7 +44,7 @@ class crawlData {
       const today = new Date();
       const shopNickname = $('.showheader__nickname').text().replace(/[\/:*?"<>|]/g, "")
       const productName = $('.showalbumheader__gallerytitle').attr('data-name').replace(/[\/:*?"<>|]/g, "")
-      this.storeDir = this.storeDir + '/' + `${today.getFullYear()}${today.getMonth()+1}${today.getDate()}` + '/' + shopNickname + '/' + productName
+      this.storeDir = this.storeDir + '/' + `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}` + '/' + shopNickname + '/' + productName
       fs.mkdir(this.storeDir, { recursive: true }, function() {});
 
       $('.image__imagewrap img').each((_, element) => {
@@ -62,7 +62,7 @@ class crawlData {
 
   async downLoadPictures() {
     const result_list = this.result_list;
-    
+    console.log(`共计 ${result_list.length} 张图片，正在下载，请稍等...`)
     try {
       for (let i = 0, len = result_list.length; i < len; i++) {
         const imageUrl = result_list[i].download_url;
@@ -72,12 +72,12 @@ class crawlData {
           console.log('文件已存在，不再重复下载')
           continue
         } else {
-          console.log(`开始下载第 ${i + 1} 张图片!`);
           await this.downLoadPicture(imageUrl);
+          console.log(`进度：${i + 1} / ${result_list.length}`);
           await this.sleep(2000 * Math.random());
-          console.log(`第 ${i + 1} 张图片下载成功!`);
         }
       }
+      console.log('原图已下载完成。');
       return Promise.resolve();
     } catch (e) {
       console.log('写入数据失败', e);
@@ -88,7 +88,6 @@ class crawlData {
   async downLoadPicture(href) {
     try {
       const target_path = path.resolve(`${this.storeDir}/${href.split('/').pop()}`);
-      console.log(target_path)
       const optionConf = {
         responseType: 'stream',
         headers: {
