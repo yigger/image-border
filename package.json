@@ -7,8 +7,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "pkg" : {
-    "assets": [ "node_modules/**/*"],
+  "pkg": {
+    "assets": [
+      "node_modules/**/*"
+    ],
     "outputPath": "dist"
   },
   "author": "",
