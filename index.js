@@ -2,7 +2,6 @@ const fs = require('fs')
 const path = require('path');
 const readline = require('readline');
 const URL = require('url').URL;
-const images = require("images");
 const crawlData = require('./crawl_data');
 const sharp = require('sharp');
 
@@ -51,13 +50,17 @@ const imageBorder = async (url, width, mode) => {
   console.log("处理后的存储路径：", storeDir)
   console.log("---------------- \n")
   
-  // 处理像素
+  
   const borderFilePaths = []
+  const files = []
+  walkSync(dir, (filePath, _) => files.push(filePath));
+
+  // 处理像素
   console.log("正在压缩图片质量，请稍等...")
-  await walkSync(dir, async function (filePath, _) {
-    let newFilePath = dealImage(storeDir, filePath, width || 1800)
+  for(let filePath of files) {
+    let newFilePath = await dealImage(storeDir, filePath, width || 1800)
     borderFilePaths.push(newFilePath)
-  });
+  }
   console.log("图片质量已全部压缩。");
 
   // 处理上下边框
@@ -68,21 +71,19 @@ const imageBorder = async (url, width, mode) => {
   console.log("上下边框已全部处理。");
 }
 
-const dealImage = (storeDir, filePath, width) => {
+const dealImage = async (storeDir, filePath, width) => {
   const paths = filePath.split('/')
   const file = process.platform === "win32" ? path.win32.basename(filePath) : paths[paths.length - 1]
 
   if (!/\.(jpg|jpeg|png|GIF|JPG|PNG)$/.test(file) ) { 
     return
   }
-  const img = images(filePath)
-  if (img.width() <= Number.parseInt(width)) {
-    img.save(storeDir + '/' + file, { quality : 90 })
-  } else {
-    img.resize(Number.parseInt(width))
-       .save(storeDir + '/' + file, {
-         quality : 90
-       })
+
+  const img = await sharp(filePath)
+  const metadata = await img.metadata()
+
+  if (metadata.width > Number.parseInt(width)) {
+    img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(storeDir + '/' + file)
   }
 
   console.log(`${filePath} 图片质量已处理.`);
