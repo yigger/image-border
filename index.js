@@ -55,7 +55,6 @@ const imageBorder = async (url, width, mode) => {
 
   const filePaths = await runImageSize(files, storeSizeDir, width)
   await runBorder(filePaths, storeDir, mode)
-  return
 }
 
 const runImageSize = async (files, storeDir, width) => {
@@ -107,19 +106,14 @@ const runBorder = async (borderFilePaths, storeDir, mode) => {
 }
 
 const dealBorder = async (obj, storeDir) => {
-  try {
-    const buffer = await sharp(obj.store_path)
-                        .extend({
-                            top: 5,
-                            bottom: 5,
-                            background: "#FFFFFF"
-                        }) 
-                        .toBuffer();
-    sharp(buffer).toFile(storeDir + '/' + obj.filename);
-    console.log(storeDir + '/' + obj.filename, "上下边框已处理。");
-  } catch (error) {
-    console.log(error);
-  }
+  sharp(obj.store_path)
+                      .extend({
+                          top: 5,
+                          bottom: 5,
+                          background: "#FFFFFF"
+                      }) 
+                      .toFile(storeDir + '/' + obj.filename)
+  console.log(storeDir + '/' + obj.filename, "上下边框已处理。");
 }
 
 const walkSync = (currentDirPath, callback) => {
