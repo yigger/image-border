@@ -1,6 +1,9 @@
 const fs = require('fs')
 const path = require('path');
 const readline = require('readline');
+// const images = require("images");
+const sizeOf = require('image-size')
+// const getPixels = require("get-pixels")
 const URL = require('url').URL;
 const crawlData = require('./crawl_data');
 const sharp = require('sharp');
@@ -43,63 +46,76 @@ const imageBorder = async (url, width, mode) => {
   const thief = new crawlData(url, referer);
   const dir = await thief.run();
 
-  // 处理图片并保存
   const storeDir = dir + '/data'
+  const storeSizeDir = dir + '/size'
   fs.mkdir(storeDir, function() {});
-  console.log("---------------- \n")
-  console.log("处理后的存储路径：", storeDir)
-  console.log("---------------- \n")
-  
-  
-  const borderFilePaths = []
+  fs.mkdir(storeSizeDir, function() {});
   const files = []
   walkSync(dir, (filePath, _) => files.push(filePath));
 
+  const filePaths = await runImageSize(files, storeSizeDir, width)
+  await runBorder(filePaths, storeDir, mode)
+}
+
+const runImageSize = async (files, storeDir, width) => {
+  const borderFilePaths = []
   // 处理像素
   console.log("正在压缩图片质量，请稍等...")
   for(let filePath of files) {
-    let newFilePath = await dealImage(storeDir, filePath, width || 1800)
-    borderFilePaths.push(newFilePath)
+    let outputObj = await dealImage(storeDir, filePath, width || 1800)
+    borderFilePaths.push(outputObj)
   }
   console.log("图片质量已全部压缩。");
-
-  // 处理上下边框
-  console.log("正在处理上下边框，请稍等...")
-  for (let newFilePath of borderFilePaths) {
-    await dealBorder(newFilePath, (mode || 'y') === 'y')
-  }
-  console.log("上下边框已全部处理。");
+  return borderFilePaths
 }
 
 const dealImage = async (storeDir, filePath, width) => {
   const paths = filePath.split('/')
   const file = process.platform === "win32" ? path.win32.basename(filePath) : paths[paths.length - 1]
+  const outputObj = {
+    store_path: storeDir + '/' + file,
+    filename: file,
+    store_dir: storeDir
+  }
 
   if (!/\.(jpg|jpeg|png|GIF|JPG|PNG)$/.test(file) ) { 
     return
   }
 
   const img = await sharp(filePath)
-  const metadata = await img.metadata()
-
+  const metadata = sizeOf(filePath)
   if (metadata.width > Number.parseInt(width)) {
-    img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(storeDir + '/' + file)
+    try {
+      img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
+    } catch(e){}
+  } else {
+    img.jpeg({ quality: 100 }).toFile(outputObj.store_path)
   }
 
-  console.log(`${filePath} 图片质量已处理.`);
-  return storeDir + '/' + file
+  console.log(`${outputObj.store_path} 图片质量已处理.`);
+  return outputObj
 }
 
-const dealBorder = async (filePath) => {
+const runBorder = async (borderFilePaths, storeDir, mode) => {
+  // 处理上下边框
+  console.log("正在处理上下边框，请稍等...")
+  for (let newFileObj of borderFilePaths) {
+    await dealBorder(newFileObj, storeDir, (mode || 'y') === 'y')
+  }
+  console.log("上下边框已全部处理。");
+}
+
+const dealBorder = async (obj, storeDir) => {
   try {
-    const buffer = await sharp(filePath)
+    console.log()
+    const buffer = await sharp(obj.store_path)
                         .extend({
                             top: 5,
                             bottom: 5,
                             background: "#FFFFFF"
                         }) 
                         .toBuffer();
-    sharp(buffer).toFile(filePath);
+    sharp(buffer).toFile(obj.store + '/' + obj.filename);
     console.log(filePath, "上下边框已处理。");
   } catch (error) {
     console.log(error);
