@@ -1,9 +1,7 @@
 const fs = require('fs')
 const path = require('path');
 const readline = require('readline');
-// const images = require("images");
 const sizeOf = require('image-size')
-// const getPixels = require("get-pixels")
 const URL = require('url').URL;
 const crawlData = require('./crawl_data');
 const sharp = require('sharp');
@@ -48,6 +46,8 @@ const imageBorder = async (url, width, mode) => {
 
   const storeDir = dir + '/data'
   const storeSizeDir = dir + '/size'
+  fs.rmSync(storeDir, { recursive: true, force: true });
+  fs.rmSync(storeSizeDir, { recursive: true, force: true });
   fs.mkdir(storeDir, function() {});
   fs.mkdir(storeSizeDir, function() {});
   const files = []
@@ -55,6 +55,7 @@ const imageBorder = async (url, width, mode) => {
 
   const filePaths = await runImageSize(files, storeSizeDir, width)
   await runBorder(filePaths, storeDir, mode)
+  return
 }
 
 const runImageSize = async (files, storeDir, width) => {
@@ -107,7 +108,6 @@ const runBorder = async (borderFilePaths, storeDir, mode) => {
 
 const dealBorder = async (obj, storeDir) => {
   try {
-    console.log()
     const buffer = await sharp(obj.store_path)
                         .extend({
                             top: 5,
@@ -115,8 +115,8 @@ const dealBorder = async (obj, storeDir) => {
                             background: "#FFFFFF"
                         }) 
                         .toBuffer();
-    sharp(buffer).toFile(obj.store + '/' + obj.filename);
-    console.log(filePath, "上下边框已处理。");
+    sharp(buffer).toFile(storeDir + '/' + obj.filename);
+    console.log(storeDir + '/' + obj.filename, "上下边框已处理。");
   } catch (error) {
     console.log(error);
   }
