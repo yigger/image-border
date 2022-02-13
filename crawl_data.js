@@ -74,7 +74,7 @@ class crawlData {
         } else {
           await this.downLoadPicture(imageUrl);
           console.log(`进度：${i + 1} / ${result_list.length}`);
-          await this.sleep(2000 * Math.random());
+          await this.sleep(500 * Math.random());
         }
       }
       console.log('原图已下载完成。');
