@@ -93,14 +93,19 @@ const dealImage = async (storeDir, filePath, width) => {
   }
 
   const img = await sharp(filePath)
-  const metadata = sizeOf(filePath)
-  if (metadata.width > Number.parseInt(width)) {
-    try {
-      img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
-    } catch(e){}
-  } else {
-    img.jpeg({ quality: 100 }).toFile(outputObj.store_path)
+  try {
+    const metadata = sizeOf(filePath)
+    if (metadata.width > Number.parseInt(width)) {
+      try {
+        img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
+      } catch(e){}
+    } else {
+      img.jpeg({ quality: 100 }).toFile(outputObj.store_path)
+    }
+  } catch (e) {
+    img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
   }
+  
 
   console.log(`${outputObj.store_path} 图片质量已处理.`);
   return outputObj
