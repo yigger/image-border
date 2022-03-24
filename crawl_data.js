@@ -74,7 +74,7 @@ class crawlData {
         } else {
           await this.downLoadPicture(imageUrl);
           console.log(`进度：${i + 1} / ${result_list.length}`);
-          await this.sleep(2000 * Math.random());
+          await this.sleep(500 * Math.random());
         }
       }
       console.log('原图已下载完成。');
@@ -95,8 +95,8 @@ class crawlData {
           "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
         }
       }
-      const writer = fs.createWriteStream(target_path)
       const response = await axios.get(href, optionConf);
+      const writer = fs.createWriteStream(target_path)
       response.data.pipe(writer);
       return new Promise((resolve, reject) => {
           writer.on("finish", resolve);
