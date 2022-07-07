@@ -93,12 +93,17 @@ const dealImage = async (storeDir, filePath, width) => {
   }
 
   const img = await sharp(filePath)
-  const metadata = sizeOf(filePath)
-  if (metadata.width > Number.parseInt(width)) {
-    try {
-      img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
-    } catch(e){}
-  } else {
+  
+  try {
+    const metadata = sizeOf(filePath)
+    if (metadata.width > Number.parseInt(width)) {
+      try {
+        img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
+      } catch(e){}
+    } else {
+      img.jpeg({ quality: 100 }).toFile(outputObj.store_path)
+    }
+  } catch (e) {
     img.jpeg({ quality: 100 }).toFile(outputObj.store_path)
   }
 
