@@ -16,36 +16,25 @@ const run = async () => {
   console.log("-----------------------------------")
   console.log("| 欢迎使用 yy-image，退出： Ctrl+c |")
   console.log("-----------------------------------")
-  try {
-    rl.question('输入抓取图片的网址（多个网址用空格分开）：', function (crawl_url) {
-      rl.question('输入像素宽度大小（默认 1800）：', function (width) {
-        rl.question('是否加上边框(y/n)？（默认y）', async function (mode) {
-          const urls = crawl_url.split(' ')
-          for(let url of urls) {
-            try {
-              if (/^https?:\/\//.test(url)) {
-                await imageBorder(url, width, mode)
-              }
-            } catch (e) {
-              console.log("error：", e)
-            }
-          }
-
-          console.log('处理的地址如下：')
-          console.log(urls)
-          console.log("已经全部处理完毕。可进入下一轮。 \n\n\n")
-          
+  rl.question('输入抓取图片的网址（多个网址用空格分开）：', function (crawl_url) {
+    rl.question('输入像素宽度大小（默认 1800）：', function (width) {
+      rl.question('是否加上边框(y/n)？（默认y）', async function (mode) {
+        const urls = crawl_url.split(' ')
+        for(let url of urls) {
           try {
-            await run()
-          } catch(e) {
-            await run()
+            if (/^https?:\/\//.test(url)) {
+              await imageBorder(url, width, mode)
+            }
+          } catch (e) {
+            console.log("error：", e)
           }
-        });
+        }
+
+        await console.log('处理的地址如下：')
+        await console.log(urls)
       });
     });
-  } catch (e) {
-    console.log(e)
-  }
+  });
 }
 
 const imageBorder = async (url, width, mode) => {
@@ -96,6 +85,11 @@ const dealImage = async (storeDir, filePath, width) => {
   
   try {
     const metadata = sizeOf(filePath)
+    if (metadata.height > metadata.width) {
+      console.log("高度超过宽度，估计是模特图，跳过处理。")
+      return outputObj
+    }
+
     if (metadata.width > Number.parseInt(width)) {
       try {
         img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
@@ -123,8 +117,8 @@ const runBorder = async (borderFilePaths, storeDir, mode) => {
 const dealBorder = async (obj, storeDir) => {
   sharp(obj.store_path)
                       .extend({
-                          top: 5,
-                          bottom: 5,
+                          top: 20,
+                          bottom: 20,
                           background: "#FFFFFF"
                       }) 
                       .toFile(storeDir + '/' + obj.filename)
