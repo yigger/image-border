@@ -21,17 +21,14 @@ const run = async () => {
       rl.question('是否加上边框(y/n)？（默认y）', async function (mode) {
         const urls = crawl_url.split(' ')
         for(let url of urls) {
-          try {
-            if (/^https?:\/\//.test(url)) {
-              await imageBorder(url, width, mode)
-            }
-          } catch (e) {
-            console.log("error：", e)
+          if (/^https?:\/\//.test(url)) {
+            await imageBorder(url, width, mode)
           }
         }
 
         await console.log('处理的地址如下：')
         await console.log(urls)
+        await run()
       });
     });
   });
@@ -114,14 +111,20 @@ const runBorder = async (borderFilePaths, storeDir, mode) => {
   console.log("上下边框已全部处理。");
 }
 
-const dealBorder = async (obj, storeDir) => {
+const dealBorder = (obj, storeDir) => {
+  if (!fs.existsSync(obj.store_path)) {
+    return false
+  }
   sharp(obj.store_path)
                       .extend({
                           top: 20,
                           bottom: 20,
                           background: "#FFFFFF"
-                      }) 
+                      })
                       .toFile(storeDir + '/' + obj.filename)
+                      .catch(err =>{
+                        console.log("image-board sharpError: ", err);    
+                       });
   console.log(storeDir + '/' + obj.filename, "上下边框已处理。");
 }
 
