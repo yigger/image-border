@@ -83,7 +83,8 @@ const dealImage = async (storeDir, filePath, width) => {
   try {
     const metadata = sizeOf(filePath)
     if (metadata.height > metadata.width) {
-      console.log("高度超过宽度，估计是模特图，跳过处理。")
+      // console.log("高度超过宽度，估计是模特图，跳过处理。")
+      console.log("模特图：", filePath)
       return outputObj
     }
 
@@ -105,6 +106,8 @@ const dealImage = async (storeDir, filePath, width) => {
 const runBorder = async (borderFilePaths, storeDir, mode) => {
   // 处理上下边框
   console.log("正在处理上下边框，请稍等...")
+  console.log("等待 2 秒")
+  await sleep(2000)
   for (let newFileObj of borderFilePaths) {
     await dealBorder(newFileObj, storeDir, (mode || 'y') === 'y')
   }
@@ -137,6 +140,15 @@ const walkSync = (currentDirPath, callback) => {
       } else if (stat.isDirectory()) {
           walkSync(filePath, callback);
       }
+  });
+}
+
+const sleep = async (time) => {
+  return new Promise((resolve) => {
+    // console.log(`自动睡眠中，${time / 1000}秒后重新发送请求......`);
+    setTimeout(() => {
+      resolve();
+    }, time);
   });
 }
 
