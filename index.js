@@ -58,7 +58,7 @@ const runImageSize = async (files, storeDir, width) => {
   // 处理像素
   console.log("正在压缩图片质量，请稍等...")
   for(let filePath of files) {
-    let outputObj = await dealImage(storeDir, filePath, width || 1800)
+    let outputObj = await dealImage(storeDir, filePath, width || 1500)
     borderFilePaths.push(outputObj)
   }
   console.log("图片质量已全部压缩。");
