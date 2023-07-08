@@ -82,6 +82,7 @@ const dealImage = async (storeDir, filePath, width) => {
   
   try {
     const metadata = sizeOf(filePath)
+    // 过滤模特图
     if (metadata.height - metadata.width > 50) {
       // console.log("高度超过宽度，估计是模特图，跳过处理。")
       console.log("模特图：", filePath)
