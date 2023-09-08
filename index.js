@@ -123,6 +123,8 @@ const dealBorder = (obj, storeDir) => {
                       .extend({
                           top: 20,
                           bottom: 20,
+                          left: 20,
+                          right: 20,
                           background: "#FFFFFF"
                       })
                       .toFile(storeDir + '/' + obj.filename)
