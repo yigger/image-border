@@ -25,7 +25,6 @@ class crawlData {
 
   sleep(time) {
     return new Promise((resolve) => {
-      // console.log(`自动睡眠中，${time / 1000}秒后重新发送请求......`);
       setTimeout(() => {
         resolve();
       }, time);

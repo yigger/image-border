@@ -5,6 +5,7 @@ const sizeOf = require('image-size')
 const URL = require('url').URL;
 const crawlData = require('./crawl_data');
 const sharp = require('sharp');
+const { exit } = require('process');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -36,12 +37,14 @@ const run = async () => {
 
 const imageBorder = async (url, width, mode) => {
   const myURL = new URL(url);
-  const referer = myURL.origin
+  const referer = myURL.origin;
   const thief = new crawlData(url, referer);
   const dir = await thief.run();
+  const clothesUniqCode = dir.split('/').pop();
 
-  const storeDir = dir + '/data'
-  const storeSizeDir = dir + '/size'
+  const storeDir = dir + '/' + clothesUniqCode;
+  const storeSizeDir = dir + '/size';
+
   fs.rmSync(storeDir, { recursive: true, force: true });
   fs.rmSync(storeSizeDir, { recursive: true, force: true });
   fs.mkdir(storeDir, function() {});
@@ -82,10 +85,9 @@ const dealImage = async (storeDir, filePath, width) => {
   
   try {
     const metadata = sizeOf(filePath)
-    // 过滤模特图
     if (metadata.height - metadata.width > 50) {
       // console.log("高度超过宽度，估计是模特图，跳过处理。")
-      console.log("模特图：", filePath)
+      img.jpeg({ quality: 90 }).toFile(outputObj.store_path)
       return outputObj
     }
 
@@ -119,6 +121,13 @@ const dealBorder = (obj, storeDir) => {
   if (!fs.existsSync(obj.store_path)) {
     return false
   }
+
+  const metadata = sizeOf(obj.store_path)
+  // 过滤模特图
+  if (metadata.height - metadata.width > 50) {
+    return false
+  }
+
   sharp(obj.store_path)
                       .extend({
                           top: 20,
