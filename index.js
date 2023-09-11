@@ -122,11 +122,13 @@ const dealBorder = (obj, storeDir) => {
     return false
   }
 
-  const metadata = sizeOf(obj.store_path)
-  // 过滤模特图
-  if (metadata.height - metadata.width > 50) {
-    return false
-  }
+  try {
+    const metadata = sizeOf(obj.store_path)
+    // 过滤模特图
+    if (metadata.height - metadata.width > 50) {
+      return false
+    }
+  } catch (e) {}
 
   sharp(obj.store_path)
                       .extend({
