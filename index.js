@@ -46,9 +46,17 @@ const imageBorder = async (url, width, mode) => {
   const storeSizeDir = dir + '/size';
 
   fs.rmSync(storeDir, { recursive: true, force: true });
+  fs.rmSync(storeSizeDir+"/model", { recursive: true, force: true });
   fs.rmSync(storeSizeDir, { recursive: true, force: true });
+
+  // 处理边框后的存储路径
   fs.mkdir(storeDir, function() {});
+  // fs.mkdir(storeDir+"/model", function() {});
+
+  // 处理图片大小后的存储路径
   fs.mkdir(storeSizeDir, function() {});
+  fs.mkdir(storeSizeDir+"/model", function() {});
+
   const files = []
   walkSync(dir, (filePath, _) => files.push(filePath));
 
@@ -62,6 +70,7 @@ const runImageSize = async (files, storeDir, width) => {
   console.log("正在压缩图片质量，请稍等...")
   for(let filePath of files) {
     let outputObj = await dealImage(storeDir, filePath, width || 1500)
+    console.log(outputObj)
     borderFilePaths.push(outputObj)
   }
   console.log("图片质量已全部压缩。");
@@ -72,6 +81,7 @@ const dealImage = async (storeDir, filePath, width) => {
   const paths = filePath.split('/')
   const file = process.platform === "win32" ? path.win32.basename(filePath) : paths[paths.length - 1]
   const outputObj = {
+    model_store_path: storeDir + '/model/' + file, 
     store_path: storeDir + '/' + file,
     filename: file,
     store_dir: storeDir
@@ -85,20 +95,32 @@ const dealImage = async (storeDir, filePath, width) => {
   
   try {
     const metadata = sizeOf(filePath)
+    // 模特图的处理方式
     if (metadata.height - metadata.width > 50) {
-      // console.log("高度超过宽度，估计是模特图，跳过处理。")
-      img.jpeg({ quality: 90 }).toFile(outputObj.store_path)
+      if (metadata.width >= 2500) {
+        // 像素太大，处理为 2000px 的像素，为了淘宝的 4:3 图片可以上传
+        img.resize(2000)
+           .jpeg({ quality: 100 })
+           .toFile(outputObj.model_store_path)
+      } else {
+        img.jpeg({ quality: 90 })
+           .toFile(outputObj.model_store_path)
+      }
+      console.log(`${outputObj.store_path} 模特图的质量已处理.`);
       return outputObj
     }
 
     if (metadata.width > Number.parseInt(width)) {
       try {
         img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
-      } catch(e){}
+      } catch(e){
+        console.log(e)
+      }
     } else {
       img.jpeg({ quality: 100 }).toFile(outputObj.store_path)
     }
   } catch (e) {
+    console.log(e)
     img.jpeg({ quality: 100 }).toFile(outputObj.store_path)
   }
 
@@ -118,6 +140,7 @@ const runBorder = async (borderFilePaths, storeDir, mode) => {
 }
 
 const dealBorder = (obj, storeDir) => {
+  var output_path = storeDir + '/' + obj.filename
   if (!fs.existsSync(obj.store_path)) {
     return false
   }
@@ -126,6 +149,7 @@ const dealBorder = (obj, storeDir) => {
     const metadata = sizeOf(obj.store_path)
     // 过滤模特图
     if (metadata.height - metadata.width > 50) {
+      // output_path = storeDir + '/model/' + obj.filename
       return false
     }
   } catch (e) {}
@@ -138,11 +162,11 @@ const dealBorder = (obj, storeDir) => {
                           right: 20,
                           background: "#FFFFFF"
                       })
-                      .toFile(storeDir + '/' + obj.filename)
+                      .toFile(output_path)
                       .catch(err =>{
                         console.log("image-board sharpError: ", err);    
                        });
-  console.log(storeDir + '/' + obj.filename, "上下边框已处理。");
+  console.log(output_path, "上下边框已处理。");
 }
 
 const walkSync = (currentDirPath, callback) => {
