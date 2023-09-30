@@ -5,13 +5,11 @@ const sizeOf = require('image-size')
 const URL = require('url').URL;
 const crawlData = require('./crawl_data');
 const sharp = require('sharp');
-const { exit } = require('process');
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
-
 
 const run = async () => {
   console.log("-----------------------------------")
@@ -50,12 +48,12 @@ const imageBorder = async (url, width, mode) => {
   fs.rmSync(storeSizeDir, { recursive: true, force: true });
 
   // 处理边框后的存储路径
-  fs.mkdir(storeDir, function() {});
-  // fs.mkdir(storeDir+"/model", function() {});
+  fs.mkdirSync(storeDir, function() {});
+  // fs.mkdirSync(storeDir+"/model", function() {});
 
   // 处理图片大小后的存储路径
-  fs.mkdir(storeSizeDir, function() {});
-  fs.mkdir(storeSizeDir+"/model", function() {});
+  fs.mkdirSync(storeSizeDir, function() {});
+  fs.mkdirSync(storeSizeDir+"/model", function() {});
 
   const files = []
   walkSync(dir, (filePath, _) => files.push(filePath));
@@ -65,51 +63,63 @@ const imageBorder = async (url, width, mode) => {
 }
 
 const runImageSize = async (files, storeDir, width) => {
-  const borderFilePaths = []
-  // 处理像素
-  console.log("正在压缩图片质量，请稍等...")
-  for(let filePath of files) {
-    let outputObj = await dealImage(storeDir, filePath, width || 1500)
-    console.log(outputObj)
-    borderFilePaths.push(outputObj)
+  const borderFilePaths = [];
+  for (const filePath of files) {
+    console.log("-------------------------")
+    console.log(storeDir)
+    console.log(filePath)
+    const outputObj = await dealImage(storeDir, filePath, width || 1500);
+    console.log("done.")
+    if (outputObj) {
+      borderFilePaths.push(outputObj);
+    } else {
+      console.log("格式不正确");
+    }
   }
-  console.log("图片质量已全部压缩。");
   return borderFilePaths
 }
 
 const dealImage = async (storeDir, filePath, width) => {
+  console.log(`Current line: ${getCurrentLine()}`);
   const paths = filePath.split('/')
+  console.log(`Current line: ${getCurrentLine()}`);
   const file = process.platform === "win32" ? path.win32.basename(filePath) : paths[paths.length - 1]
+  console.log(`Current line: ${getCurrentLine()}`);
   const outputObj = {
     model_store_path: storeDir + '/model/' + file, 
     store_path: storeDir + '/' + file,
     filename: file,
     store_dir: storeDir
   }
-
+  console.log(`Current line: ${getCurrentLine()}`);
   if (!/\.(jpg|jpeg|png|GIF|JPG|PNG)$/.test(file) ) { 
-    return
+    return false
   }
-
+  console.log(outputObj)
   const img = await sharp(filePath)
-  
-  try {
-    const metadata = sizeOf(filePath)
-    // 模特图的处理方式
-    if (metadata.height - metadata.width > 50) {
-      if (metadata.width >= 2500) {
-        // 像素太大，处理为 2000px 的像素，为了淘宝的 4:3 图片可以上传
-        img.resize(2000)
-           .jpeg({ quality: 100 })
-           .toFile(outputObj.model_store_path)
-      } else {
-        img.jpeg({ quality: 90 })
-           .toFile(outputObj.model_store_path)
-      }
-      console.log(`${outputObj.store_path} 模特图的质量已处理.`);
-      return outputObj
+  console.log(`Current line: ${getCurrentLine()}`);
+  const metadata = await sizeOf(filePath)
+  console.log(metadata)
+  console.log(`Current line: ${getCurrentLine()}`);
+  // 模特图的处理方式
+  if (metadata && (metadata.height - metadata.width > 50)) {
+    console.log(`Current line: ${getCurrentLine()}`);
+    if (metadata.width >= 2500) {
+      console.log(`Current line: ${getCurrentLine()}`);
+      // 像素太大，处理为 2000px 的像素，为了淘宝的 4:3 图片可以上传
+      img.resize(2000)
+          .jpeg({ quality: 100 })
+          .toFile(outputObj.model_store_path)
+      console.log(`Current line: ${getCurrentLine()}`);
+    } else {
+      console.log(`Current line: ${getCurrentLine()}`);
+      img.jpeg({ quality: 90 })
+          .toFile(outputObj.model_store_path)
+      console.log(`Current line: ${getCurrentLine()}`);
     }
-
+    console.log(`Current line: ${getCurrentLine()}`);
+    console.log(`${outputObj.store_path} 模特图的质量已处理.`);
+  } else {
     if (metadata.width > Number.parseInt(width)) {
       try {
         img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
@@ -119,12 +129,9 @@ const dealImage = async (storeDir, filePath, width) => {
     } else {
       img.jpeg({ quality: 100 }).toFile(outputObj.store_path)
     }
-  } catch (e) {
-    console.log(e)
-    img.jpeg({ quality: 100 }).toFile(outputObj.store_path)
+    console.log(`${outputObj.store_path} 图片质量已处理.`);
   }
-
-  console.log(`${outputObj.store_path} 图片质量已处理.`);
+  
   return outputObj
 }
 
@@ -181,13 +188,13 @@ const walkSync = (currentDirPath, callback) => {
   });
 }
 
-const sleep = async (time) => {
-  return new Promise((resolve) => {
-    // console.log(`自动睡眠中，${time / 1000}秒后重新发送请求......`);
-    setTimeout(() => {
-      resolve();
-    }, time);
-  });
+const sleep = async (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function getCurrentLine() {
+  const err = new Error();
+  return err.stack.split('\n')[2].trim();
 }
 
 run()
