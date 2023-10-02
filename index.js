@@ -108,12 +108,12 @@ const dealImage = async (storeDir, filePath, width) => {
       console.log(`Current line: ${getCurrentLine()}`);
       // 像素太大，处理为 2000px 的像素，为了淘宝的 4:3 图片可以上传
       img.resize(2000)
-          .jpeg({ quality: 100 })
+          .jpeg({ quality: 70 })
           .toFile(outputObj.model_store_path)
       console.log(`Current line: ${getCurrentLine()}`);
     } else {
       console.log(`Current line: ${getCurrentLine()}`);
-      img.jpeg({ quality: 90 })
+      img.jpeg({ quality: 70 })
           .toFile(outputObj.model_store_path)
       console.log(`Current line: ${getCurrentLine()}`);
     }
