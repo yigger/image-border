@@ -65,11 +65,7 @@ const imageBorder = async (url, width, mode) => {
 const runImageSize = async (files, storeDir, width) => {
   const borderFilePaths = [];
   for (const filePath of files) {
-    console.log("-------------------------")
-    console.log(storeDir)
-    console.log(filePath)
     const outputObj = await dealImage(storeDir, filePath, width || 1500);
-    console.log("done.")
     if (outputObj) {
       borderFilePaths.push(outputObj);
     } else {
@@ -80,44 +76,30 @@ const runImageSize = async (files, storeDir, width) => {
 }
 
 const dealImage = async (storeDir, filePath, width) => {
-  console.log(`Current line: ${getCurrentLine()}`);
   const paths = filePath.split('/')
-  console.log(`Current line: ${getCurrentLine()}`);
   const file = process.platform === "win32" ? path.win32.basename(filePath) : paths[paths.length - 1]
-  console.log(`Current line: ${getCurrentLine()}`);
   const outputObj = {
     model_store_path: storeDir + '/model/' + file, 
     store_path: storeDir + '/' + file,
     filename: file,
     store_dir: storeDir
   }
-  console.log(`Current line: ${getCurrentLine()}`);
   if (!/\.(jpg|jpeg|png|GIF|JPG|PNG)$/.test(file) ) { 
     return false
   }
-  console.log(outputObj)
   const img = await sharp(filePath)
-  console.log(`Current line: ${getCurrentLine()}`);
   const metadata = await sizeOf(filePath)
-  console.log(metadata)
-  console.log(`Current line: ${getCurrentLine()}`);
   // 模特图的处理方式
   if (metadata && (metadata.height - metadata.width > 50)) {
-    console.log(`Current line: ${getCurrentLine()}`);
     if (metadata.width >= 2500) {
-      console.log(`Current line: ${getCurrentLine()}`);
       // 像素太大，处理为 2000px 的像素，为了淘宝的 4:3 图片可以上传
       img.resize(2000)
           .jpeg({ quality: 70 })
           .toFile(outputObj.model_store_path)
-      console.log(`Current line: ${getCurrentLine()}`);
     } else {
-      console.log(`Current line: ${getCurrentLine()}`);
       img.jpeg({ quality: 70 })
           .toFile(outputObj.model_store_path)
-      console.log(`Current line: ${getCurrentLine()}`);
     }
-    console.log(`Current line: ${getCurrentLine()}`);
     console.log(`${outputObj.store_path} 模特图的质量已处理.`);
   } else {
     if (metadata.width > Number.parseInt(width)) {
