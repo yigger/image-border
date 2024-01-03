@@ -5,10 +5,11 @@ const fs = require('fs')
 const process = require('process');
 
 class crawlData {
-  constructor(base_url, referer) {
+  constructor(base_url, referer, password="") {
     this.base_url = base_url;
     this.referer = referer;
     this.result_list = [];
+    this.password = password || "";
     this.storeDir = path.resolve('./', process.cwd())
   }
 
@@ -34,13 +35,10 @@ class crawlData {
   async getPageData() {
     const target_url = this.base_url;
     try {
-      // 相册密码
-      const password = ""
       const header = {}
-
-      if (password != "") {
+      if (this.password != "") {
         header["headers"] = {
-          'Cookie': `lockcode=${password}; version=7.8.11;`
+          'Cookie': `lockcode=${this.password}; version=7.8.11;`
         }
       }
 
