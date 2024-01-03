@@ -34,7 +34,17 @@ class crawlData {
   async getPageData() {
     const target_url = this.base_url;
     try {
-      const res = await axios.get(target_url);
+      // 相册密码
+      const password = ""
+      const header = {}
+
+      if (password != "") {
+        header["headers"] = {
+          'Cookie': `lockcode=${password}; version=7.8.11;`
+        }
+      }
+
+      const res = await axios.get(target_url, header);
       const html = res.data;
       const $ = cheerio.load(html);
       const result_list = [];

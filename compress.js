@@ -21,4 +21,8 @@ const compress = async (filePath, quality=50) => {
   console.log(`输出 ${resultFilePath}`)
 }
 
-compress("C:\\Users\\21738\\Downloads\\O1CN01IPpoX61kCNItmYU7c_!!0-tbbala.jpg", 30)
+// compress("C:\\Users\\21738\\Desktop\\新建文件夹\\1.jpg")
+// compress("C:\\Users\\21738\\Desktop\\新建文件夹\\2.jpg")
+// compress("C:\\Users\\21738\\Desktop\\新建文件夹\\3.jpg")
+// compress("C:\\Users\\21738\\Desktop\\新建文件夹\\4.jpg")
+compress("C:\\Users\\21738\\Desktop\\model\\b879a121.jpg")
