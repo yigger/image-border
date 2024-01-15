@@ -20,25 +20,27 @@ const run = async () => {
   rl.question('输入抓取图片的网址（多个网址用空格分开）：', function (crawl_url) {
     rl.question('输入像素宽度大小（默认 1800）：', function (width) {
       rl.question('是否加上边框(y/n)？（默认y）', async function (mode) {
-        const urls = crawl_url.split(' ')
-        for(let url of urls) {
-          if (/^https?:\/\//.test(url)) {
-            await imageBorder(url, width, mode)
+        rl.question('相册密码？（默认无）', async function (password) {
+          const urls = crawl_url.split(' ')
+          for(let url of urls) {
+            if (/^https?:\/\//.test(url)) {
+              await imageBorder(url, width, mode, password)
+            }
           }
-        }
 
-        await console.log('处理的地址如下：')
-        await console.log(urls)
-        await run()
+          await console.log('处理的地址如下：')
+          await console.log(urls)
+          await run()
+        })
       });
     });
   });
 }
 
-const imageBorder = async (url, width, mode) => {
+const imageBorder = async (url, width, mode, password) => {
   const myURL = new URL(url);
   const referer = myURL.origin;
-  const thief = new crawlData(url, referer);
+  const thief = new crawlData(url, referer, password);
   const dir = await thief.run();
   const clothesUniqCode = dir.split('/').pop();
 

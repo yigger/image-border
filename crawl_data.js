@@ -5,10 +5,11 @@ const fs = require('fs')
 const process = require('process');
 
 class crawlData {
-  constructor(base_url, referer) {
+  constructor(base_url, referer, password="") {
     this.base_url = base_url;
     this.referer = referer;
     this.result_list = [];
+    this.password = password || "";
     this.storeDir = path.resolve('./', process.cwd())
   }
 
@@ -34,7 +35,14 @@ class crawlData {
   async getPageData() {
     const target_url = this.base_url;
     try {
-      const res = await axios.get(target_url);
+      const header = {}
+      if (this.password != "") {
+        header["headers"] = {
+          'Cookie': `lockcode=${this.password}; version=7.8.11;`
+        }
+      }
+
+      const res = await axios.get(target_url, header);
       const html = res.data;
       const $ = cheerio.load(html);
       const result_list = [];
