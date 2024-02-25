@@ -5,6 +5,8 @@ const sizeOf = require('image-size')
 const URL = require('url').URL;
 const crawlData = require('./crawl_data');
 const sharp = require('sharp');
+const { promisify } = require('util');
+// const { createCanvas, loadImage } = require('canvas');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -90,31 +92,37 @@ const dealImage = async (storeDir, filePath, width) => {
     return false
   }
   const img = await sharp(filePath)
-  const metadata = await sizeOf(filePath)
-  // 模特图的处理方式
-  if (metadata && (metadata.height - metadata.width > 50)) {
-    if (metadata.width >= 2500) {
-      // 像素太大，处理为 2000px 的像素，为了淘宝的 4:3 图片可以上传
-      img.resize(2000)
-          .jpeg({ quality: 70 })
-          .toFile(outputObj.model_store_path)
-    } else {
-      img.jpeg({ quality: 70 })
-          .toFile(outputObj.model_store_path)
-    }
-    console.log(`${outputObj.store_path} 模特图的质量已处理.`);
-  } else {
-    if (metadata.width > Number.parseInt(width)) {
-      try {
-        img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
-      } catch(e){
-        console.log(e)
+  try {
+    const metadata = await sizeOf(filePath)
+    // 模特图的处理方式
+    if (metadata && (metadata.height - metadata.width > 50)) {
+      if (metadata.width >= 2500) {
+        // 像素太大，处理为 2000px 的像素，为了淘宝的 4:3 图片可以上传
+        img.resize(2000)
+            .jpeg({ quality: 70 })
+            .toFile(outputObj.model_store_path)
+      } else {
+        img.jpeg({ quality: 70 })
+            .toFile(outputObj.model_store_path)
       }
+      console.log(`${outputObj.store_path} 模特图的质量已处理.`);
     } else {
-      img.jpeg({ quality: 100 }).toFile(outputObj.store_path)
+      if (metadata.width > Number.parseInt(width)) {
+        try {
+          img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
+        } catch(e){
+          console.log(e)
+        }
+      } else {
+        img.jpeg({ quality: 100 }).toFile(outputObj.store_path)
+      }
+      console.log(`${outputObj.store_path} 图片质量已处理.`);
     }
+  } catch (e) {
+    img.resize(Number.parseInt(width)).jpeg({ quality: 90 }).toFile(outputObj.store_path)
     console.log(`${outputObj.store_path} 图片质量已处理.`);
   }
+  
   
   return outputObj
 }

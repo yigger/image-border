@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.24.0",
+    "canvas": "^2.11.2",
     "cheerio": "^1.0.0-rc.10",
     "filenamify": "^5.0.2",
     "image-size": "^1.0.1",
